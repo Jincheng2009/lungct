@@ -29,18 +29,18 @@ label_df['x'] = -1
 label_df['y'] = -1
 label_df['z'] = -1
 
-processed_data = []
+resolution = 3
+
 for (idx, row) in label_df.iterrows():
     patient = row['id']
     print(idx)
     cancer = label_df.loc[idx, 'cancer']
     patient_data = load_scan(datapath + patient)
     patient_pixels = get_pixels_hu(patient_data)
-    pix_resampled, spacing = resample(patient_pixels, patient_data, [3,3,3])
+    pix_resampled, spacing = resample(patient_pixels, patient_data, [resolution,resolution,resolution])
     segmented_lungs = segment_lung_mask(pix_resampled, False)
     # segmented_lungs_fill = segment_lung_mask(pix_resampled, True)
     normalized_lungs = normalize(segmented_lungs)
-    processed_data.append([normalized_lungs, cancer])
     ### Generate metrics for QC
     mean_pixel = np.average(normalized_lungs)
     mask_frac = np.sum(segmented_lungs==1) / float(np.size(segmented_lungs))
@@ -50,9 +50,9 @@ for (idx, row) in label_df.iterrows():
     label_df.loc[idx, 'x'] = image_size_x
     label_df.loc[idx, 'y'] = image_size_y
     label_df.loc[idx, 'z'] = slice_count
+    np.save('../data/processed-{}-{}mm.npy'.format(patient, resolution), [normalized_lungs, cancer])
 
-np.save('../data/processed_data-{}-{}-{}.npy'.format(slice_count,image_size_x,image_size_y), processed_data)
-label_df.to_csv('../data/label_df-{}-{}-{}.csv'.format(slice_count,image_size_x,image_size_y), index = False)
+label_df.to_csv('../data/label_df-{}mm.csv'.format(resolution), index = False)
 
 
 

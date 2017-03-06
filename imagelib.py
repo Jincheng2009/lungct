@@ -150,3 +150,10 @@ def normalize(image):
     image[image>1] = 1.
     image[image<0] = 0.
     return image
+    
+def plot_lung(datapath, fill=False):
+    patient_data = load_scan(datapath)
+    patient_pixels = get_pixels_hu(patient_data)
+    pix_resampled, spacing = resample(patient_pixels, patient_data, [1,1,1])
+    segmented_lungs = segment_lung_mask(pix_resampled, fill)
+    plot_3d(segmented_lungs, 0)
