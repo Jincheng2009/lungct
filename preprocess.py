@@ -8,6 +8,7 @@ Created on Thu Jan 19 21:42:48 2017
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import os
+import sys
 from imagelib import normalize
 from imagelib import load_scan
 from imagelib import get_pixels_hu
@@ -15,7 +16,7 @@ from imagelib import resample
 from imagelib import segment_lung_mask
 
 # Some constants 
-datapath = '../data/samples/'
+datapath = '../data/stage1/'
 label_df = pd.read_csv("../data/stage1_labels.csv")
 
 patients = os.listdir(datapath)
@@ -33,7 +34,10 @@ resolution = 3
 
 for (idx, row) in label_df.iterrows():
     patient = row['id']
-    print(idx)
+    outfile = '../data/processed/{}-{}mm.npy'.format(patient, resolution)
+    sys.stdout.write(str(idx) + "\t" + patient + "\n")
+    if os.path.isfile(outfile):
+        continue
     cancer = label_df.loc[idx, 'cancer']
     patient_data = load_scan(datapath + patient)
     patient_pixels = get_pixels_hu(patient_data)
@@ -50,7 +54,7 @@ for (idx, row) in label_df.iterrows():
     label_df.loc[idx, 'x'] = image_size_x
     label_df.loc[idx, 'y'] = image_size_y
     label_df.loc[idx, 'z'] = slice_count
-    np.save('../data/processed-{}-{}mm.npy'.format(patient, resolution), [normalized_lungs, cancer])
+    np.save(outfile, [normalized_lungs, cancer])
 
 label_df.to_csv('../data/label_df-{}mm.csv'.format(resolution), index = False)
 
