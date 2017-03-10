@@ -16,7 +16,7 @@ from imagelib import resample
 from imagelib import segment_lung_mask
 
 # Some constants 
-datapath = '../data/stage1/'
+datapath = '../data/samples/'
 label_df = pd.read_csv("../data/stage1_labels.csv")
 
 patients = os.listdir(datapath)
@@ -30,6 +30,7 @@ label_df['x'] = -1
 label_df['y'] = -1
 label_df['z'] = -1
 
+## Resolution in mm for each element in the output matrix
 resolution = 3
 
 for (idx, row) in label_df.iterrows():

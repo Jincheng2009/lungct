@@ -56,7 +56,6 @@ def resample(image, scan, new_spacing=[1,1,1]):
     thickness = scan[0].SliceThickness
     if thickness < 1.e-4:
     	thickness = abs(scan[1].SliceLocation - scan[2].SliceLocation)
-    print(thickness)
     spacing = np.array([thickness] + scan[0].PixelSpacing, dtype=np.float32)
     resize_factor = spacing / new_spacing
     new_real_shape = image.shape * resize_factor
