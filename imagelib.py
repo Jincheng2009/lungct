@@ -8,6 +8,7 @@ Created on Sat Mar 04 15:11:18 2017
 import numpy as np # linear algebra
 import dicom
 import os
+import sys
 import scipy.ndimage
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
@@ -159,3 +160,36 @@ def plot_lung(datapath, fill=False):
     pix_resampled, spacing = resample(patient_pixels, patient_data, [1,1,1])
     segmented_lungs = segment_lung_mask(pix_resampled, fill)
     plot_3d(segmented_lungs, 0)
+
+## Add padding to the designed dimension
+def add_padding(image, target_dim):
+    z = image.shape[0]
+    x = image.shape[1]
+    y = image.shape[2]
+    if z > target_dim[0] or x > target_dim[1] or y > target_dim[2]:
+        sys.stderr.write("Input image {} is larger than the design dimenstion {}".format(image.shape, target_dim))
+        return image
+    pad_value = image[0][0][0]
+    ## Pad the z direction
+    n_upper = int((target_dim[0] - z) / 2)
+    n_lower = int(target_dim[0] - z - n_upper)
+    pad_upper = np.ones((n_upper,x,y)) * pad_value
+    pad_lower = np.ones((n_lower,x,y)) * pad_value
+    padded_image = np.append(image, pad_lower, axis=0)
+    padded_image = np.append(pad_upper, padded_image, axis=0)
+    ## Pad the x direction
+    n_front = int((target_dim[1] - image.shape[1]) / 2)
+    n_back  = int(target_dim[1] - image.shape[1] - n_front)
+    pad_front = np.ones((target_dim[0],n_front,y)) * pad_value
+    pad_back = np.ones((target_dim[0],n_back ,y)) * pad_value
+    padded_image = np.append(padded_image, pad_back, axis=1)
+    padded_image = np.append(pad_front, padded_image, axis=1)
+    ## Pad the x direction
+    n_left = int((target_dim[2] - image.shape[2]) / 2)
+    n_right  = int(target_dim[2] - image.shape[2] - n_left)
+    pad_left = np.ones((target_dim[0],target_dim[1],n_left)) * pad_value
+    pad_right = np.ones((target_dim[0],target_dim[1],n_right)) * pad_value
+    padded_image = np.append(padded_image, pad_right, axis=2)
+    padded_image = np.append(pad_left, padded_image, axis=2)
+    
+    return padded_image
