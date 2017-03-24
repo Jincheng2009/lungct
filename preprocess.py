@@ -15,10 +15,9 @@ from imagelib import get_pixels_hu
 from imagelib import resample
 from imagelib import segment_lung_mask
 from imagelib import crop_empty
-import threading
 
 # Some constants 
-datapath = '../data/stage1/'
+datapath = '../data/samples/'
 label_df = pd.read_csv("../data/stage1_labels.csv")
 
 patients = os.listdir(datapath)
@@ -29,12 +28,12 @@ label_df = pd.DataFrame({'id': patients,'mask_fraction': -1.,'d1':-1,'d2':-1,'d3
 ## Resolution in mm for each element in the output matrix
 resolution = 3
 
-def preprocess(patient):
+for (idx, row) in label_df.iterrows():
     patient = row['id']
     outfile = '../data/processed/{}-{}mm.npy'.format(patient, resolution)
     sys.stdout.write(str(idx) + "\t" + patient + "\n")
     if os.path.isfile(outfile):
-        return
+        continue
     patient_data = load_scan(datapath + patient)
     patient_pixels = get_pixels_hu(patient_data)
     pix_resampled, spacing = resample(patient_pixels, patient_data, [resolution,resolution,resolution])
@@ -51,14 +50,6 @@ def preprocess(patient):
     label_df.loc[idx, 'd3'] = image_size_y
     np.save(outfile, segmented_lungs)
 
-threads = []
-for (idx, row) in label_df.iterrows():
-    for i in range(4):
-        patient = row['id']
-        t = threading.Thread(target=preprocess, args=(patient,))
-        threads.append(t)
-        t.start()    
-    
 label_df.to_csv('../data/label_df-{}mm.csv'.format(resolution), index = False)
 
 
