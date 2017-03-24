@@ -193,3 +193,15 @@ def add_padding(image, target_dim):
     padded_image = np.append(pad_left, padded_image, axis=2)
     
     return padded_image
+
+def crop_empty(segmented_lungs):
+    ## Remove the first axis
+    redundant_idx0 = np.where(segmented_lungs.max(axis=1).max(axis=1) == 0)[0]
+    segmented_lungs = np.delete(segmented_lungs, redundant_idx0, axis=0)
+    ## Remove the horizontal dimension in symmetry
+    redundant_idx1 = np.where(segmented_lungs.max(axis=1).max(axis=0) == 0)[0]
+    redundant_idx2 = np.where(segmented_lungs.max(axis=2).max(axis=0) == 0)[0]
+    remove_idx = np.intersect1d(redundant_idx1, redundant_idx2)
+    segmented_lungs = np.delete(segmented_lungs, remove_idx, axis=2)
+    segmented_lungs = np.delete(segmented_lungs, remove_idx, axis=1)
+    return segmented_lungs
