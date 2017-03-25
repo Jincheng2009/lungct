@@ -25,8 +25,8 @@ label_df = pd.read_csv("../data/label_df-3mm.csv")
 patients = os.listdir(datapath)
 patients.sort()
 
-z_max = np.max(label_df['z'])
-xy_max = np.max(label_df['x'])
+z_max = np.max(label_df['d1'])
+xy_max = np.max(label_df['d2'])
 # The max dimension as the target
 target_dim = [z_max,xy_max,xy_max]
 print("output dimension is {}".format(target_dim))

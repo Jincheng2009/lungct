@@ -17,7 +17,7 @@ from imagelib import segment_lung_mask
 from imagelib import crop_empty
 
 # Some constants 
-datapath = '../data/samples/'
+datapath = '../data/stage1/'
 label_df = pd.read_csv("../data/stage1_labels.csv")
 
 patients = os.listdir(datapath)
