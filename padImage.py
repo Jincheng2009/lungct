@@ -36,8 +36,9 @@ for patient in patients:
     image = patient_data[0]
     sys.stdout.write("processing " + patient+ "\n")
     updated_image = add_padding(image, target_dim)
-    outfile = '../data/padded/{}.npy'.format(patient)
-    np.save(outfile, [updated_image, patient_data[1]])
+    updated_image = updated_image.astype(np.int8)
+    outfile = '../data/padded/{}'.format(patient)
+    np.save(outfile, updated_image)
 
 
 
