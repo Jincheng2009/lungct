@@ -30,10 +30,19 @@ km.fit(mat)
 labels = km.labels_
 # Format results as a DataFrame
 results = pd.DataFrame([label_df.index,labels]).T
-label_df["cluster"] = results[1].astype('category')
+
 
 from sklearn import mixture
 gmm = mixture.GaussianMixture(n_components=2, covariance_type='full').fit(mat)
+labels = gmm.predict(mat)
+results = pd.DataFrame([label_df.index,labels]).T
 
+label_df["cluster"] = results[1].astype('category')
 colors = {0:'red', 1:'blue'}
 plt.scatter(label_df["volume"], label_df["mask_fraction"], c=label_df['cluster'].apply(lambda x : colors[x]))
+
+## filter outliers
+label_df = label_df[label_df['cluster']==0]
+label_df = label_df[label_df['d1']!=177]
+
+label_df.to_csv('../data/label_filter_df-3mm.csv', index=None)

@@ -20,7 +20,7 @@ from imagelib import add_padding
 
 # Some constants 
 datapath = '../data/processed/'
-label_df = pd.read_csv("../data/label_df-3mm.csv")
+label_df = pd.read_csv("../data/label_filter_df-3mm.csv")
 
 patients = os.listdir(datapath)
 patients.sort()
@@ -32,13 +32,15 @@ target_dim = [z_max,xy_max,xy_max]
 print("output dimension is {}".format(target_dim))
 
 for patient in patients:
-    patient_data = np.load(datapath + patient)
-    image = patient_data[0]
-    sys.stdout.write("processing " + patient+ "\n")
-    updated_image = add_padding(image, target_dim)
-    updated_image = updated_image.astype(np.int8)
-    outfile = '../data/padded/{}'.format(patient)
-    np.save(outfile, updated_image)
+    patient_id = patient.split('-')[0]
+    if patient_id in set(label_df['id']):
+        patient_data = np.load(datapath + patient)
+        image = patient_data
+        sys.stdout.write("processing " + patient+ "\n")
+        updated_image = add_padding(image, target_dim)
+        updated_image = updated_image.astype(np.int8)
+        outfile = '../data/padded/{}'.format(patient)
+        np.save(outfile, updated_image)
 
 
 
